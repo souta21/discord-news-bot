@@ -12,7 +12,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 RSS_URLS = [
-    "https://techcrunch.com/feed/",
+    "https://rss.itmedia.co.jp/rss/2.0/itmedia_all.xml",
 ]
 
 client = genai.Client(api_key=GEMINI_API_KEY)
