@@ -52,7 +52,7 @@ def send_to_discord(message: str) -> None:
 def process_feed(feed_url: str) -> None:
     feed = feedparser.parse(feed_url)
 
-    for entry in feed.entries[1]:
+    for entry in feed.entries[:2]:
         title = entry.get("title", "")
         description = entry.get("summary", "")
         link = entry.get("link", "")
