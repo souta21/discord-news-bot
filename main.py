@@ -22,21 +22,38 @@ prompt_template = Path("prompt.md").read_text(encoding="utf-8")
 
 def summarize(title: str, description: str) -> str:
     prompt = f"""
-{prompt_template}
+        {prompt_template}
 
-Title:
-{title}
+        Title:
+        {title}
 
-Description:
-{description}
-"""
+        Description:
+        {description}
+        """
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
-    )
+    models = [
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+    ]
 
-    return response.text.strip()
+    last_error = None
+
+    for model in models:
+        try:
+            print(f"Trying {model}")
+
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt,
+            )
+
+            return response.text.strip()
+
+        except Exception as e:
+            print(f"{model} failed: {e}")
+            last_error = e
+
+    raise last_error
 
 
 def send_to_discord(message: str) -> None:
