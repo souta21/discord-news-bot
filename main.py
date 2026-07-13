@@ -3,6 +3,7 @@ from pathlib import Path
 
 import feedparser
 import requests
+import re
 from dotenv import load_dotenv
 from google import genai
 
@@ -59,7 +60,7 @@ def summarize(title: str, description: str) -> str:
 def send_to_discord(message: str) -> None:
     response = requests.post(
         DISCORD_WEBHOOK_URL,
-        json={"content": message},
+        json=message,
         timeout=30,
     )
 
@@ -68,19 +69,31 @@ def send_to_discord(message: str) -> None:
 
 def process_feed(feed_url: str) -> None:
     feed = feedparser.parse(feed_url)
-
-    for entry in feed.entries[:2]:
+    count=0
+    for entry in feed.entries:
+        if count==2:
+            break
         title = entry.get("title", "")
+        title = re.sub(r"^\[.*?\]\s*", "", title)
         description = entry.get("summary", "")
         link = entry.get("link", "")
 
         summary = summarize(title, description)
 
-        message = (
-            f"📰 {title}\n\n"
-            f"{summary}\n\n"
-            f"{link}"
-        )
+        if summary.strip() == "SKIP":
+            continue
+        count+=1
+
+        message = {
+            "embeds": [
+                {
+                    "title": title,
+                    "url": link,
+                    "description": summary,
+                    "color": 0x3498DB,
+                }
+            ]
+        }
 
         send_to_discord(message)
 
